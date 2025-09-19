@@ -1,0 +1,623 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover" />
+  <meta name="theme-color" content="#0f172a" />
+  <title>Neon Drift — Arena Runner</title>
+  <style>
+    :root{
+      --bg:#0b1020;--panel:#0f172a;--text:#e5e7eb;--muted:#9aa4b2;--accent:#22d3ee;--accent-2:#60a5fa;
+      --ok:#2dd4bf;--warn:#f59e0b;--danger:#ef4444;--shadow:rgba(0,0,0,0.35);--glass:rgba(255,255,255,0.04);
+      --focus:#f472b6;--ring:0 0 0 3px color-mix(in srgb,var(--accent) 40%,transparent);--radius:14px;--radius-xs:8px;
+      --font:ui-sans-serif,system-ui,-apple-system,Segoe UI,Roboto,Ubuntu,Noto Sans,Helvetica Neue,Arial;
+      --nav-h:64px
+    }
+    .theme-light{--bg:#f8fafc;--panel:#fff;--text:#0f172a;--muted:#5b6572;--accent:#2563eb;--accent-2:#06b6d4;--glass:rgba(0,0,0,0.04);--shadow:rgba(0,0,0,0.1)}
+    .theme-ocean{--bg:#08131e;--panel:#0b2038;--text:#e6f6ff;--muted:#8aa2b5;--accent:#06b6d4;--accent-2:#0ea5e9}
+    .theme-sunset{--bg:#140b1d;--panel:#241132;--text:#ffeefc;--muted:#d3b6cc;--accent:#f472b6;--accent-2:#f97316}
+    *{box-sizing:border-box}html,body{height:100%}body{margin:0;font-family:var(--font);color:var(--text);background:radial-gradient(1200px 600px at 20% -20%, color-mix(in srgb,var(--accent) 14%,transparent) 0%,transparent 60%),radial-gradient(1000px 700px at 120% 120%, color-mix(in srgb,var(--accent-2) 18%,transparent) 0%,transparent 60%),var(--bg);background-attachment:fixed;line-height:1.45}
+    a{color:var(--accent);text-decoration:none}a:hover{text-decoration:underline}
+    .skip-link{position:absolute;left:8px;top:-40px;background:var(--panel);color:var(--text);padding:8px 12px;border-radius:8px;box-shadow:0 6px 18px var(--shadow);transition:top .2s;z-index:10000}
+    .skip-link:focus{top:8px;outline:none;box-shadow:var(--ring)}
+    header{height:var(--nav-h);display:flex;align-items:center;justify-content:space-between;padding:0 16px;position:sticky;top:0;z-index:1000;background:color-mix(in srgb,var(--panel)94%,transparent);backdrop-filter:blur(10px);border-bottom:1px solid color-mix(in srgb,var(--text)8%,transparent)}
+    .brand{display:flex;align-items:center;gap:12px;font-weight:800}
+    .brand .logo{width:36px;height:36px;border-radius:10px;background:linear-gradient(145deg,var(--accent),var(--accent-2));box-shadow:0 12px 30px color-mix(in srgb,var(--accent)35%,transparent);display:grid;place-items:center;color:white;font-weight:900}
+    nav[role="navigation"]{display:flex;gap:6px;flex-wrap:wrap;align-items:center}
+    .btn{cursor:pointer;user-select:none;border:1px solid color-mix(in srgb,var(--text)12%,transparent);color:var(--text);background:linear-gradient(180deg,color-mix(in srgb,var(--panel)80%,transparent),color-mix(in srgb,var(--panel)92%,transparent));border-radius:12px;padding:10px 14px;font-weight:600;letter-spacing:.25px;transition:transform .12s,box-shadow .12s,background .2s;box-shadow:0 5px 14px var(--shadow)}
+    .btn:hover{transform:translateY(-1px)}.btn:active{transform:translateY(0)}.btn.primary{background:linear-gradient(180deg,color-mix(in srgb,var(--accent)16%,transparent),color-mix(in srgb,var(--accent-2)20%,transparent));border-color:color-mix(in srgb,var(--accent)30%,transparent);box-shadow:0 12px 30px color-mix(in srgb,var(--accent)28%,transparent);color:white}
+    .btn.ghost{background:color-mix(in srgb,var(--panel)70%,transparent)}.btn.icon{padding:8px 10px}
+    main{max-width:1200px;margin:0 auto;padding:24px 16px 64px}
+    .grid{display:grid;gap:16px}.grid.cols-2{grid-template-columns:1fr 1fr}.grid.cols-3{grid-template-columns:repeat(3,1fr)}.grid.cols-4{grid-template-columns:repeat(4,1fr)}
+    @media (max-width:900px){.grid.cols-3,.grid.cols-4{grid-template-columns:1fr 1fr}}@media (max-width:680px){.grid.cols-2,.grid.cols-3,.grid.cols-4{grid-template-columns:1fr}}
+    section[role="region"]{display:none;animation:fadeIn .25s}.section-show{display:block}@keyframes fadeIn{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:none}}
+    .card{background:color-mix(in srgb,var(--panel)86%,transparent);border:1px solid color-mix(in srgb,var(--text)10%,transparent);border-radius:var(--radius);box-shadow:0 20px 50px var(--shadow);overflow:clip}
+    .card .hd{padding:14px 16px;border-bottom:1px solid color-mix(in srgb,var(--text)8%,transparent);background:color-mix(in srgb,var(--glass)80%,transparent);display:flex;align-items:center;justify-content:space-between;gap:12px;font-weight:800}
+    .card .bd{padding:16px}.muted{color:var(--muted)}.tag{display:inline-flex;gap:8px;align-items:center;padding:6px 10px;border-radius:999px;font-weight:700;font-size:12px;border:1px solid color-mix(in srgb,var(--text)10%,transparent);background:color-mix(in srgb,var(--panel)60%,transparent)}
+    .title{font-size:clamp(28px,3vw,40px);font-weight:900;letter-spacing:.3px;margin:4px 0 8px;text-shadow:0 10px 30px color-mix(in srgb,var(--accent)16%,transparent)}.subtitle{color:var(--muted);margin-bottom:18px}
+    .hero{display:grid;gap:18px;grid-template-columns:1.2fr 1fr;align-items:center}@media (max-width:900px){.hero{grid-template-columns:1fr}}
+    .hero-visual{height:260px;border-radius:var(--radius);background:radial-gradient(120px 80px at 10% 10%,color-mix(in srgb,var(--accent)15%,transparent),transparent 60%),radial-gradient(140px 100px at 90% 90%,color-mix(in srgb,var(--accent-2)16%,transparent),transparent 60%),linear-gradient(135deg,color-mix(in srgb,var(--panel)70%,transparent),color-mix(in srgb,var(--panel)95%,transparent));border:1px solid color-mix(in srgb,var(--text)10%,transparent);position:relative;overflow:hidden}
+    .avatar{width:86px;height:86px;border-radius:50%;display:grid;place-items:center;color:white;font-weight:900;font-size:26px;box-shadow:0 20px 40px color-mix(in srgb,var(--accent)35%,transparent),inset 0 0 16px color-mix(in srgb,#000 23%,transparent);border:2px solid color-mix(in srgb,white 22%,transparent)}
+    .input,select,.switch{background:color-mix(in srgb,var(--panel)72%,transparent);border:1px solid color-mix(in srgb,var(--text)12%,transparent);color:var(--text);padding:10px 12px;border-radius:var(--radius-xs);outline:none;transition:box-shadow .15s,border-color .2s,background .2s}
+    .input:focus,select:focus{box-shadow:var(--ring);border-color:color-mix(in srgb,var(--accent)40%,transparent)}
+    .stats{display:grid;gap:12px;grid-template-columns:repeat(4,1fr)}@media (max-width:900px){.stats{grid-template-columns:1fr 1fr}}@media (max-width:520px){.stats{grid-template-columns:1fr}}
+    .stat{background:color-mix(in srgb,var(--panel)72%,transparent);border:1px solid color-mix(in srgb,var(--text)10%,transparent);border-radius:var(--radius);padding:12px 14px}
+    .stat .k{font-size:13px;color:var(--muted)}.stat .v{font-size:26px;font-weight:900}
+    .progress{height:10px;background:color-mix(in srgb,var(--panel)60%,transparent);border-radius:999px;overflow:hidden;border:1px solid color-mix(in srgb,var(--text)10%,transparent)}.progress>span{display:block;height:100%;background:linear-gradient(90deg,var(--accent),var(--accent-2));width:0%;transition:width .4s}
+    .ach-grid{display:grid;gap:12px;grid-template-columns:repeat(auto-fit,minmax(220px,1fr))}.ach{display:grid;grid-template-columns:42px 1fr;gap:12px;align-items:center;background:color-mix(in srgb,var(--panel)65%,transparent);border:1px solid color-mix(in srgb,var(--text)10%,transparent);border-radius:var(--radius);padding:10px 12px;position:relative}.ach.locked{opacity:.6;filter:grayscale(.2)}.ach .ico{width:42px;height:42px;border-radius:12px;display:grid;place-items:center;background:linear-gradient(180deg,color-mix(in srgb,var(--accent)12%,transparent),color-mix(in srgb,var(--accent-2)14%,transparent));color:white;font-size:18px;font-weight:900;box-shadow:0 10px 22px color-mix(in srgb,var(--accent)30%,transparent)}
+    .game-wrap{position:relative;border-radius:var(--radius);background:linear-gradient(180deg,color-mix(in srgb,var(--panel)75%,transparent),color-mix(in srgb,var(--panel)88%,transparent));border:1px solid color-mix(in srgb,var(--text)10%,transparent);overflow:hidden;aspect-ratio:16/9;min-height:320px}
+    canvas#gameCanvas{width:100%;height:100%;display:block}
+    .hud{position:absolute;left:12px;top:12px;display:flex;gap:8px;flex-wrap:wrap}.pill{background:color-mix(in srgb,var(--panel)75%,transparent);padding:8px 10px;border:1px solid color-mix(in srgb,var(--text)12%,transparent);border-radius:999px;font-weight:800;font-size:14px;display:inline-flex;align-items:center;gap:8px}
+    .hud .right{position:absolute;right:12px;top:12px;display:flex;gap:8px;align-items:center}
+    .overlay{position:absolute;inset:0;display:grid;place-items:center;padding:20px;background:color-mix(in srgb,#000 35%,transparent);backdrop-filter:blur(10px);opacity:0;pointer-events:none;transition:opacity .25s}
+    .overlay.show{opacity:1;pointer-events:auto}
+    .panel{width:min(520px,95%);background:color-mix(in srgb,var(--panel)92%,transparent);border:1px solid color-mix(in srgb,var(--text)12%,transparent);border-radius:var(--radius);padding:16px;box-shadow:0 40px 80px var(--shadow)}
+    .mobile-ctrls{position:absolute;bottom:10px;left:50%;transform:translateX(-50%);display:flex;gap:12px}
+    .ctrl{width:70px;height:70px;border-radius:18px;background:color-mix(in srgb,var(--panel)70%,transparent);border:1px solid color-mix(in srgb,var(--text)12%,transparent);box-shadow:0 10px 30px var(--shadow);display:grid;place-items:center;color:var(--text);font-size:24px;font-weight:900;opacity:.9;user-select:none}
+    @media(min-width:900px){.mobile-ctrls{display:none}}
+    .toasts{position:fixed;bottom:18px;right:18px;display:grid;gap:10px;z-index:3000}.toast{background:color-mix(in srgb,var(--panel)92%,transparent);border:1px solid color-mix(in srgb,var(--text)12%,transparent);border-radius:12px;padding:10px 12px;box-shadow:0 14px 40px var(--shadow);display:flex;gap:10px;align-items:center;max-width:min(90vw,380px);animation:toastIn .28s}
+    .toast.ok{border-color:color-mix(in srgb,var(--ok)40%,transparent)}.toast.warn{border-color:color-mix(in srgb,var(--warn)40%,transparent)}
+    @keyframes toastIn{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:none}}
+    pre,code{font-family:ui-monospace,SFMono-Regular,Menlo,Monaco,Consolas,monospace;font-size:13px}
+    footer{padding:28px 16px;text-align:center;color:var(--muted)}
+    .btn:focus-visible,.input:focus-visible,select:focus-visible,.swatch:focus-visible,.ctrl:focus-visible{outline:none;box-shadow:var(--ring)}
+  </style>
+</head>
+<body class="theme-dark">
+  <a class="skip-link" href="#main" aria-label="Skip to main content">Skip to content</a>
+  <header>
+    <div class="brand" aria-label="Neon Drift brand">
+      <div class="logo" aria-hidden="true">ND</div>
+      <div><div style="font-size:16px">Neon Drift</div><div class="muted" style="font-size:12px">Arena Runner</div></div>
+    </div>
+    <nav role="navigation" aria-label="Primary">
+      <button class="btn ghost" data-route="home" aria-current="page">Home</button>
+      <button class="btn ghost" data-route="dashboard">Dashboard</button>
+      <button class="btn primary" data-route="game">Play</button>
+      <button class="btn ghost" data-route="leaderboard">Leaderboard</button>
+      <button class="btn ghost" data-route="settings">Settings</button>
+      <button class="btn ghost" data-route="credits">Credits</button>
+      <button class="btn ghost" data-route="snippets">Code</button>
+    </nav>
+  </header>
+
+  <main id="main">
+    <section id="screen-home" role="region" aria-labelledby="home-title" aria-hidden="false" class="section-show">
+      <div class="hero">
+        <div>
+          <div class="tag" aria-label="tagline"><span>Polished • Fast • Accessible</span></div>
+          <h1 id="home-title" class="title">Conquer the Neon Arena</h1>
+          <p class="subtitle">Dodge hazards. Collect shards. Master the drift. A delightful single-file web game that saves your progress, supports multiple themes, and plays great on desktop and mobile.</p>
+          <div style="display:flex;gap:10px;flex-wrap:wrap;">
+            <button class="btn primary" data-route="game" id="homeStartBtn">Start Game</button>
+            <button class="btn" data-route="dashboard">View Dashboard</button>
+            <button class="btn" data-route="leaderboard">See Leaderboard</button>
+          </div>
+          <div style="margin-top:16px;display:flex;gap:12px;align-items:center;">
+            <span class="pill"><span>Difficulty:</span> <strong id="hud-difficulty">Normal</strong></span>
+            <span class="pill"><span>Theme:</span> <strong id="hud-theme">Dark</strong></span>
+            <span class="pill"><span>Audio:</span> <strong id="hud-audio">On</strong></span>
+          </div>
+        </div>
+        <div class="hero-visual" aria-hidden="true"></div>
+      </div>
+
+      <div class="grid cols-3" style="margin-top:18px;">
+        <div class="card"><div class="hd">Play anywhere</div><div class="bd">Fully responsive canvas with touch/keyboard controls. Performance-tuned and adaptive speed based on difficulty.</div></div>
+        <div class="card"><div class="hd">Save & Achieve</div><div class="bd">LocalStorage saves your best scores, stats, settings, and unlocked achievements automatically.</div></div>
+        <div class="card"><div class="hd">Themes & SFX</div><div class="bd">Light/Dark plus Ocean and Sunset themes, crisp UI transitions, and tasteful inline sound effects via audio.</div></div>
+      </div>
+
+      <div class="card" style="margin-top:18px;"><div class="hd">Quick How-To</div><div class="bd"><ul><li>Keyboard: A/Left to move left, D/Right to move right. P or Space to Pause/Resume.</li><li>Touch: Use on-screen left/right buttons.</li><li>Collect shards to score. Avoid obstacles.</li></ul></div></div>
+
+      <div class="card" style="margin-top:18px;"><div class="hd">Credits</div><div class="bd"><strong>Created by Abdullah Bhatti — Forte College-Sargodha</strong><br>UI/UX, Gameplay Logic, Theming, Persistence, and SFX generation are all embedded in this single HTML file.</div></div>
+    </section>
+
+    <section id="screen-dashboard" role="region" aria-labelledby="dash-title" aria-hidden="true">
+      <h2 id="dash-title" class="title">Dashboard</h2>
+      <p class="subtitle">Your profile, lifetime stats, and achievements.</p>
+      <div class="grid cols-2">
+        <div class="card" aria-labelledby="profile-h"><div class="hd" id="profile-h">Profile</div><div class="bd">
+          <div class="profile-row">
+            <div class="avatar" id="avatar" role="img" aria-label="Player avatar">AB</div>
+            <div style="flex:1;min-width:240px;">
+              <label for="playerName">Display Name</label>
+              <input id="playerName" class="input" placeholder="Your name" maxlength="24" aria-describedby="nameHelp" />
+              <div id="nameHelp" class="muted" style="font-size:12px;margin-top:6px;">Shown on the leaderboard for this session.</div>
+            </div>
+            <div>
+              <label for="accentPick">Accent Color</label>
+              <select id="accentPick"><option value="cyan">Cyan</option><option value="blue">Blue</option><option value="pink">Pink</option><option value="orange">Orange</option><option value="mint">Mint</option></select>
+            </div>
+            <button class="btn" id="saveProfileBtn">Save Profile</button>
+          </div>
+        </div></div>
+
+        <div class="card" aria-labelledby="stats-h"><div class="hd" id="stats-h">Stats</div><div class="bd">
+          <div class="stats" role="list">
+            <div class="stat" role="listitem"><div class="k">Best Score</div><div class="v" id="stat-bestScore">0</div></div>
+            <div class="stat" role="listitem"><div class="k">Best Survival (s)</div><div class="v" id="stat-bestTime">0.0</div></div>
+            <div class="stat" role="listitem"><div class="k">Total Coins</div><div class="v" id="stat-totalCoins">0</div></div>
+            <div class="stat" role="listitem"><div class="k">Games Played</div><div class="v" id="stat-gamesPlayed">0</div></div>
+          </div>
+          <div style="margin-top:14px;">
+            <div style="display:flex;justify-content:space-between;font-weight:800;font-size:14px;margin-bottom:8px;"><span>Progress to next achievement</span><span id="progressLabel" class="muted">0%</span></div>
+            <div class="progress"><span id="progressBar" style="width:0%"></span></div>
+          </div>
+        </div></div>
+      </div>
+
+      <div class="card" style="margin-top:16px;" aria-labelledby="ach-h"><div class="hd" id="ach-h">Achievements</div><div class="bd"><div id="achGrid" class="ach-grid" role="list"></div></div></div>
+    </section>
+
+    <section id="screen-game" role="region" aria-labelledby="game-title" aria-hidden="true">
+      <h2 id="game-title" class="title">Play</h2>
+      <p class="subtitle">Collect shards. Dodge hazards. Pause with P or Space.</p>
+
+      <div class="card"><div class="bd">
+        <div class="game-wrap" id="gameWrap" aria-label="Gameplay canvas">
+          <canvas id="gameCanvas" aria-label="Game canvas"></canvas>
+
+          <div class="hud" aria-hidden="true">
+            <span class="pill"><span>Score:</span> <strong id="uiScore">0</strong></span>
+            <span class="pill"><span>Time:</span> <strong id="uiTime">0.0s</strong></span>
+            <span class="pill"><span>Coins:</span> <strong id="uiCoins">0</strong></span>
+            <span class="pill"><span>Multi:</span> <strong id="uiMulti">x1.00</strong></span>
+            <div class="right">
+              <button class="btn icon" id="btnPause" title="Pause/Resume" aria-label="Pause or resume">⏸️</button>
+              <button class="btn icon" id="btnMute" title="Mute/Unmute audio" aria-label="Mute or unmute">🔊</button>
+            </div>
+          </div>
+
+          <div class="mobile-ctrls" aria-label="Mobile controls">
+            <div class="ctrl" id="ctrlLeft" role="button" aria-label="Move left" tabindex="0">◀</div>
+            <div class="ctrl" id="ctrlRight" role="button" aria-label="Move right" tabindex="0">▶</div>
+          </div>
+
+          <div id="overlayPause" class="overlay" aria-hidden="true"><div class="panel" role="dialog" aria-label="Paused"><div class="t" style="font-weight:900;font-size:22px">Paused</div><div class="row" style="display:flex;gap:10px;margin-top:12px;"><button class="btn primary" id="resumeBtn">Resume</button><button class="btn" id="restartBtn">Restart</button><button class="btn" data-route="settings">Settings</button></div><p class="muted" style="margin-top:10px">Tip: Collect shards to increase multiplier. Avoid red obstacles.</p></div></div>
+
+          <div id="overlayGameOver" class="overlay" aria-hidden="true"><div class="panel" role="dialog" aria-label="Game Over"><div class="t" style="font-weight:900;font-size:22px">Game Over</div><div class="grid cols-2" style="margin-top:10px;display:grid;grid-template-columns:1fr 1fr;gap:12px"><div class="stat"><div class="k">Score</div><div class="v" id="goScore">0</div></div><div class="stat"><div class="k">Survival (s)</div><div class="v" id="goTime">0.0</div></div></div><div class="row" style="display:flex;gap:10px;margin-top:12px;"><button class="btn primary" id="playAgainBtn">Play Again</button><button class="btn" data-route="leaderboard">Leaderboard</button><button class="btn" data-route="dashboard">Dashboard</button></div><p class="muted" id="goSummary" style="margin-top:10px"></p></div></div>
+        </div>
+
+        <div style="display:flex;gap:10px;flex-wrap:wrap;margin-top:12px;">
+          <button class="btn primary" id="startBtn">Start</button>
+          <button class="btn" id="stopBtn">Stop</button>
+          <span class="tag" title="Current difficulty and theme"><span id="gameInfoTag">Normal • Dark</span></span>
+        </div>
+      </div></div>
+    </section>
+
+    <section id="screen-leaderboard" role="region" aria-labelledby="lb-title" aria-hidden="true">
+      <h2 id="lb-title" class="title">Leaderboard</h2>
+      <p class="subtitle">Realistic mock data for this session (in-memory). Your new runs will appear here.</p>
+      <div class="card"><div class="bd" style="overflow:auto"><table aria-label="Leaderboard table" style="width:100%;border-collapse:collapse"><thead><tr><th>#</th><th>Player</th><th>Score</th><th>Time (s)</th><th>Difficulty</th><th>Date</th></tr></thead><tbody id="lbBody"></tbody></table></div></div>
+    </section>
+
+    <section id="screen-settings" role="region" aria-labelledby="settings-title" aria-hidden="true">
+      <h2 id="settings-title" class="title">Settings</h2>
+      <p class="subtitle">Customize your experience. All settings are saved locally.</p>
+      <div class="grid cols-2">
+        <div class="card"><div class="hd">Difficulty</div><div class="bd"><select id="difficultySel" aria-label="Difficulty"><option value="easy">Easy</option><option value="normal">Normal</option><option value="hard">Hard</option></select><p class="muted" style="margin-top:8px">Hard increases spawn rate and hazard speed. Scores are multiplied by difficulty.</p></div></div>
+
+        <div class="card"><div class="hd">Audio</div><div class="bd"><label><input type="checkbox" id="audioToggle" /> Enable sound effects</label><p class="muted" style="margin-top:8px">Inline-generated WAVs ensure everything works offline.</p></div></div>
+
+        <div class="card"><div class="hd">Theme</div><div class="bd"><div class="swatches" role="listbox" aria-label="Theme selection"><button class="swatch" data-theme="light" role="option" aria-selected="false"><div class="tile" style="background:linear-gradient(135deg,#fafafa,#eaeaea);border:1px solid #d4d4d4;height:54px;border-radius:10px"></div><div>Light</div></button><button class="swatch active" data-theme="dark" role="option" aria-selected="true"><div class="tile" style="background:linear-gradient(135deg,#0b1020,#0f172a);border:1px solid #2b3142;height:54px;border-radius:10px"></div><div>Dark</div></button><button class="swatch" data-theme="ocean" role="option" aria-selected="false"><div class="tile" style="background:linear-gradient(135deg,#08131e,#0b2038);border:1px solid #1a3048;height:54px;border-radius:10px"></div><div>Ocean</div></button><button class="swatch" data-theme="sunset" role="option" aria-selected="false"><div class="tile" style="background:linear-gradient(135deg,#140b1d,#241132);border:1px solid #3a1f50;height:54px;border-radius:10px"></div><div>Sunset</div></button></div></div></div>
+
+        <div class="card"><div class="hd">Data</div><div class="bd"><div style="display:flex;gap:10px;flex-wrap:wrap"><button class="btn" id="exportBtn">Export Save</button><button class="btn" id="importBtn">Import Save</button><button class="btn" id="resetBtn">Reset Progress</button></div><textarea id="ioArea" class="input" rows="4" style="width:100%;margin-top:10px" placeholder="Paste exported JSON here to import"></textarea><p class="muted" style="margin-top:8px">Leaderboard is kept in-memory (mock) for realism. Your stats and settings are persisted offline.</p></div></div>
+      </div>
+    </section>
+
+    <section id="screen-credits" role="region" aria-labelledby="credits-title" aria-hidden="true">
+      <h2 id="credits-title" class="title">Credits</h2>
+      <div class="card"><div class="bd"><p>Created by <strong>Abdullah Bhatti — Forte College-Sargodha</strong></p><ul><li>Design & Development: Abdullah Bhatti</li><li>Gameplay & Engine: Vanilla JavaScript (single file)</li><li>Styling & Themes: CSS variables + transitions</li><li>Persistence: Browser localStorage</li><li>Audio: Generated inline WAVs and played via HTML audio</li></ul><p class="muted">This is a single-file, offline-capable demo showcasing a polished UX, accessibility considerations, and a compact game loop.</p></div></div>
+    </section>
+
+    <section id="screen-snippets" role="region" aria-labelledby="snippets-title" aria-hidden="true">
+      <h2 id="snippets-title" class="title">Code Museum (trimmed)</h2>
+      <p class="subtitle">This area contains a few example code snippets (non-executable).</p>
+      <div class="grid cols-2"><div class="card"><div class="hd">JavaScript (Gameplay Excerpt)</div><div class="bd"><pre><code>update(dt){const accel=this.input.left?-1:this.input.right?1:0;this.player.vx+=accel*this.player.accel*dt;this.player.vx*=this.player.friction;this.player.x+=this.player.vx*dt;this.player.x=clamp(this.player.x,this.bounds.left,this.bounds.right);}</code></pre></div></div></div>
+    </section>
+  </main>
+
+  <footer aria-label="Footer"><div>Neon Drift • Single-file Web Game • Created by Abdullah Bhatti — Forte College-Sargodha</div><div class="muted" style="margin-top:6px">Your settings and progress are saved in your browser. No data leaves your device.</div></footer>
+
+  <audio id="sfx-coin" preload="auto" aria-hidden="true"></audio>
+  <audio id="sfx-hit" preload="auto" aria-hidden="true"></audio>
+  <audio id="sfx-click" preload="auto" aria-hidden="true"></audio>
+  <audio id="sfx-level" preload="auto" aria-hidden="true"></audio>
+
+  <div class="toasts" aria-live="polite" aria-atomic="true" id="toasts"></div>
+
+  <script>
+    const $ = s=>document.querySelector(s), $$=s=>Array.from(document.querySelectorAll(s));
+    const LS_KEYS={profile:'nd_profile_v1',stats:'nd_stats_v1',settings:'nd_settings_v1',achievements:'nd_achievements_v1'};
+    const defaultProfile={name:'Player',accent:'cyan'};
+    const defaultStats={bestScore:0,bestTime:0,totalCoins:0,gamesPlayed:0};
+    const defaultSettings={difficulty:'normal',audio:true,theme:'dark'};
+    const defaultAchievements={firstRun:false,coins10:false,coins100:false,survive30:false,survive60:false,hard5000:false};
+    let leaderboard=[
+      {name:'NovaX',score:9620,time:75.6,diff:'hard',date:Date.now()-86400000*2},
+      {name:'Aya',score:7010,time:64.2,diff:'normal',date:Date.now()-86400000*3},
+      {name:'ByteFox',score:5120,time:52.5,diff:'normal',date:Date.now()-86400000*1},
+      {name:'Zenith',score:4380,time:48.3,diff:'easy',date:Date.now()-86400000*6},
+      {name:'Lumen',score:3880,time:44.7,diff:'normal',date:Date.now()-86400000*5},
+      {name:'Kai',score:3550,time:39.9,diff:'easy',date:Date.now()-86400000*8},
+      {name:'Orion',score:3350,time:41.2,diff:'hard',date:Date.now()-86400000*4}
+    ];
+
+    function load(key,fallback){
+      try{
+        const raw=localStorage.getItem(key);
+        if(!raw) return structuredClone(fallback);
+        const data=JSON.parse(raw);
+        return {...structuredClone(fallback),...data};
+      }catch(e){return structuredClone(fallback)}
+    }
+    function save(key,obj){try{localStorage.setItem(key,JSON.stringify(obj))}catch(e){}}
+
+    let profile=load(LS_KEYS.profile,defaultProfile);
+    let stats=load(LS_KEYS.stats,defaultStats);
+    let settings=load(LS_KEYS.settings,defaultSettings);
+    let achievements=load(LS_KEYS.achievements,defaultAchievements);
+
+    function applyTheme(t){
+      document.body.classList.remove('theme-light','theme-dark','theme-ocean','theme-sunset');
+      if(t==='light')document.body.classList.add('theme-light');
+      else if(t==='ocean')document.body.classList.add('theme-ocean');
+      else if(t==='sunset')document.body.classList.add('theme-sunset');
+      else document.body.classList.add('theme-dark');
+      $('#hud-theme').textContent = t.charAt(0).toUpperCase()+t.slice(1);
+      $$('.swatch').forEach(s=>{const on=s.dataset.theme===t;s.classList.toggle('active',on);s.setAttribute('aria-selected',on?'true':'false')});
+      updateAvatarVisual();
+      const meta=document.querySelector('meta[name="theme-color"]'); if(meta) meta.setAttribute('content',getComputedStyle(document.body).getPropertyValue('--bg').trim());
+    }
+
+    const ACCENTS={cyan:['#22d3ee','#60a5fa'],blue:['#2563eb','#60a5fa'],pink:['#f472b6','#fb7185'],orange:['#f97316','#f59e0b'],mint:['#10b981','#22d3ee']};
+    function updateAvatarVisual(){
+      const [a,b]=ACCENTS[profile.accent]||ACCENTS.cyan;
+      const el=$('#avatar'); if(!el) return;
+      el.style.background=`radial-gradient(80% 80% at 25% 25%, ${a}55, transparent 70%), ${b}77`;
+      el.style.boxShadow=`0 16px 36px ${a}55, inset 0 0 16px #0000003b`;
+      const initials=(profile.name||'Player').split(' ').map(s=>s[0]).filter(Boolean).slice(0,2).join('').toUpperCase();
+      el.textContent=initials||'P';
+    }
+
+    const routes=['home','dashboard','game','leaderboard','settings','credits','snippets'];
+    function goto(route){
+      routes.forEach(r=>{
+        const on=r===route;
+        const sec=$('#screen-'+r);
+        if(sec) sec.setAttribute('aria-hidden', on? 'false':'true');
+        const btn=document.querySelector(`nav [data-route="${r}"]`);
+        if(btn) btn.setAttribute('aria-current', on? 'page':'false');
+      });
+      if(route==='game') focusGameStart();
+      window.scrollTo({top:0,behavior:'smooth'});
+    }
+
+    $('#playerName').value=profile.name;
+    $('#accentPick').value=profile.accent;
+    $('#difficultySel').value=settings.difficulty;
+    $('#audioToggle').checked = settings.audio===undefined?true:!!settings.audio;
+    applyTheme(settings.theme||'dark');
+    updateStatsUI();
+    renderAchievements();
+    renderLeaderboard();
+    $('#hud-difficulty').textContent = cap(settings.difficulty);
+    $('#hud-audio').textContent = settings.audio? 'On':'Off';
+    updateGameInfoTag();
+
+    $$('.swatch').forEach(s=>s.addEventListener('click',e=>{
+      const t=e.currentTarget.dataset.theme; settings.theme=t; save(LS_KEYS.settings,settings); applyTheme(t); updateGameInfoTag(); playClick();
+    }));
+    $$('nav [data-route]').forEach(b=>b.addEventListener('click',e=>{const r=e.currentTarget.dataset.route; playClick(); goto(r); if(r!=='game') game?.pause();}));
+    $('#homeStartBtn')?.addEventListener('click',()=>{ goto('game'); startRun(); });
+
+    $('#saveProfileBtn')?.addEventListener('click',()=>{
+      profile.name=($('#playerName').value||'Player').trim().slice(0,24);
+      profile.accent=$('#accentPick').value||'cyan';
+      save(LS_KEYS.profile,profile);
+      updateAvatarVisual();
+      toast('Profile saved','ok');
+      playClick();
+      renderLeaderboard();
+    });
+    $('#playerName')?.addEventListener('keydown',e=>{ if(e.key==='Enter') $('#saveProfileBtn')?.click(); });
+
+    $('#difficultySel')?.addEventListener('change',e=>{ settings.difficulty=e.target.value; save(LS_KEYS.settings,settings); $('#hud-difficulty').textContent=cap(settings.difficulty); updateGameInfoTag(); toast('Difficulty: '+cap(settings.difficulty),'ok'); playClick(); });
+    $('#audioToggle')?.addEventListener('change',e=>{ settings.audio=!!e.target.checked; save(LS_KEYS.settings,settings); $('#hud-audio').textContent = settings.audio? 'On':'Off'; updateGameInfoTag(); toast('Audio '+(settings.audio?'enabled':'muted'),'ok'); playClick(); });
+
+    $('#exportBtn')?.addEventListener('click',()=>{
+      const payload={profile,stats,settings,achievements};
+      $('#ioArea').value=JSON.stringify(payload,null,2);
+      $('#ioArea').focus();
+      toast('Exported save to textbox','ok');
+      playClick();
+    });
+
+    $('#importBtn')?.addEventListener('click',()=>{
+      try{
+        const data=JSON.parse($('#ioArea').value);
+        if(!data) throw new Error('No data');
+        profile={...defaultProfile,...(data.profile||{})};
+        stats={...defaultStats,...(data.stats||{})};
+        settings={...defaultSettings,...(data.settings||{})};
+        achievements={...defaultAchievements,...(data.achievements||{})};
+        save(LS_KEYS.profile,profile); save(LS_KEYS.stats,stats); save(LS_KEYS.settings,settings); save(LS_KEYS.achievements,achievements);
+        $('#playerName').value=profile.name; $('#accentPick').value=profile.accent; $('#difficultySel').value=settings.difficulty; $('#audioToggle').checked = settings.audio===undefined?true:!!settings.audio;
+        applyTheme(settings.theme||'dark'); updateStatsUI(); renderAchievements(); renderLeaderboard();
+        $('#hud-difficulty').textContent=cap(settings.difficulty); $('#hud-audio').textContent=settings.audio?'On':'Off'; updateGameInfoTag();
+        toast('Save imported','ok'); playClick();
+      }catch(err){ toast('Import failed: invalid JSON','warn'); }
+    });
+
+    $('#resetBtn')?.addEventListener('click',()=>{
+      if(!confirm('Reset all progress? This cannot be undone.')) return;
+      profile=structuredClone(defaultProfile); stats=structuredClone(defaultStats); settings=structuredClone(defaultSettings); achievements=structuredClone(defaultAchievements);
+      save(LS_KEYS.profile,profile); save(LS_KEYS.stats,stats); save(LS_KEYS.settings,settings); save(LS_KEYS.achievements,achievements);
+      $('#playerName').value=profile.name; $('#accentPick').value=profile.accent; $('#difficultySel').value=settings.difficulty; $('#audioToggle').checked=settings.audio;
+      applyTheme(settings.theme); updateStatsUI(); renderAchievements(); renderLeaderboard();
+      $('#hud-difficulty').textContent=cap(settings.difficulty); $('#hud-audio').textContent=settings.audio?'On':'Off'; updateGameInfoTag();
+      toast('Progress reset','ok'); playClick();
+    });
+
+    $('#startBtn')?.addEventListener('click',()=>{ playClick(); startRun(); });
+    $('#stopBtn')?.addEventListener('click',()=>{ playClick(); game?.gameOver('stopped'); });
+    $('#btnPause')?.addEventListener('click',()=>{ playClick(); togglePause(); });
+    $('#btnMute')?.addEventListener('click',()=>{ settings.audio=!settings.audio; $('#audioToggle').checked=settings.audio; save(LS_KEYS.settings,settings); $('#hud-audio').textContent=settings.audio?'On':'Off'; updateGameInfoTag(); playClick(); });
+    $('#resumeBtn')?.addEventListener('click',()=>{ playClick(); game?.resume(); hideOverlay('#overlayPause'); });
+    $('#restartBtn')?.addEventListener('click',()=>{ playClick(); startRun(); });
+    $('#playAgainBtn')?.addEventListener('click',()=>{ playClick(); startRun(); });
+
+    function bindHold(el,set){
+      if(!el) return;
+      const on=()=>set(true), off=()=>set(false);
+      el.addEventListener('touchstart',ev=>{ev.preventDefault();on();},{passive:false});
+      el.addEventListener('touchend',off); el.addEventListener('touchcancel',off);
+      el.addEventListener('mousedown',on); el.addEventListener('mouseup',off); el.addEventListener('mouseleave',off);
+      el.addEventListener('keydown',e=>{ if(e.key==='Enter'||e.key===' '){ e.preventDefault(); on(); }});
+      el.addEventListener('keyup',e=>{ if(e.key==='Enter'||e.key===' '){ e.preventDefault(); off(); }});
+    }
+
+    const ctrlState={left:false,right:false};
+    bindHold($('#ctrlLeft'),v=>{ ctrlState.left=v; syncInput(); });
+    bindHold($('#ctrlRight'),v=>{ ctrlState.right=v; syncInput(); });
+
+    function syncInput(){ if(!game) return; game.input.left=ctrlState.left; game.input.right=ctrlState.right; }
+
+    function togglePause(){ if(!game) return; if(game.paused){ game.resume(); hideOverlay('#overlayPause'); } else { game.pause(); showOverlay('#overlayPause'); } }
+    function showOverlay(sel){ const el=$(sel); if(!el) return; el.classList.add('show'); el.setAttribute('aria-hidden','false'); }
+    function hideOverlay(sel){ const el=$(sel); if(!el) return; el.classList.remove('show'); el.setAttribute('aria-hidden','true'); }
+
+    function focusGameStart(){ $('#startBtn')?.focus({preventScroll:true}); }
+    function toast(msg,kind='ok',timeout=2200){ const t=document.createElement('div'); t.className=`toast ${kind}`; t.innerHTML=`<span class="tag">${kind==='ok'?'✓':'!'}</span><span>${msg}</span>`; $('#toasts').appendChild(t); setTimeout(()=>t.remove(),timeout); }
+
+    function cap(s){ return s? s.charAt(0).toUpperCase()+s.slice(1):''; }
+    function clamp(x,lo,hi){ return Math.max(lo,Math.min(hi,x)); }
+    const rand=(a=0,b=1)=>Math.random()*(b-a)+a;
+
+    function makeWave({duration=0.12,freq=440,type='sine',vol=0.5,attack=0.005,release=0.08}){
+      const sr=44100; const count=Math.floor(sr*duration); const buf=new ArrayBuffer(44+count*2); const view=new DataView(buf);
+      const writeStr=(o,s)=>{ for(let i=0;i<s.length;i++) view.setUint8(o+i,s.charCodeAt(i)); };
+      writeStr(0,'RIFF'); view.setUint32(4,36+count*2,true); writeStr(8,'WAVE'); writeStr(12,'fmt '); view.setUint32(16,16,true); view.setUint16(20,1,true); view.setUint16(22,1,true); view.setUint32(24,sr,true); view.setUint32(28,sr*2,true); view.setUint16(32,2,true); view.setUint16(34,16,true); writeStr(36,'data'); view.setUint32(40,count*2,true);
+      for(let i=0;i<count;i++){
+        const t=i/sr; const env = t<attack ? t/attack : t>duration-release ? (duration-t)/release : 1;
+        let s=0; const w=2*Math.PI*freq*t;
+        if(type==='square') s=Math.sign(Math.sin(w));
+        else if(type==='saw') s=2*(t*freq-Math.floor(0.5+t*freq));
+        else if(type==='tri') s=Math.asin(Math.sin(w))*2/Math.PI;
+        else s=Math.sin(w);
+        const val=Math.max(-1,Math.min(1,s*vol*env));
+        view.setInt16(44+i*2, val*0x7fff, true);
+      }
+      return new Blob([buf],{type:'audio/wav'});
+    }
+    function assignSfx(){
+      try{
+        const coin=URL.createObjectURL(makeWave({freq:880,duration:.09,vol:.55}));
+        const hit=URL.createObjectURL(makeWave({freq:120,duration:.20,type:'tri',vol:.6}));
+        const click=URL.createObjectURL(makeWave({freq:300,duration:.06,type:'square',vol:.35}));
+        const level=URL.createObjectURL(makeWave({freq:520,duration:.15,type:'saw',vol:.45}));
+        $('#sfx-coin').src=coin; $('#sfx-hit').src=hit; $('#sfx-click').src=click; $('#sfx-level').src=level;
+      }catch(e){}
+    }
+    assignSfx();
+    function playIf(el){ if(settings.audio){ try{ el.currentTime=0; el.play(); }catch(e){} } }
+    const playCoin=()=>playIf($('#sfx-coin')), playHit=()=>playIf($('#sfx-hit')), playClick=()=>playIf($('#sfx-click')), playLevel=()=>playIf($('#sfx-level'));
+
+    const ACH_LIST=[
+      {id:'firstRun',title:'First Run',desc:'Finish your very first game.',icon:'🚀'},
+      {id:'coins10',title:'Collector I',desc:'Collect 10 coins total.',icon:'💎'},
+      {id:'coins100',title:'Collector II',desc:'Collect 100 coins total.',icon:'💠'},
+      {id:'survive30',title:'Survivor I',desc:'Survive 30 seconds in a single run.',icon:'⏱️'},
+      {id:'survive60',title:'Survivor II',desc:'Survive 60 seconds in a single run.',icon:'🏆'},
+      {id:'hard5000',title:'Hard Charger',desc:'Score 5000+ on Hard.',icon:'🔥'}
+    ];
+
+    function renderAchievements(){
+      const grid=$('#achGrid'); if(!grid) return; grid.innerHTML='';
+      ACH_LIST.forEach(a=>{
+        const unlocked=!!achievements[a.id];
+        const div=document.createElement('div');
+        div.className='ach'+(unlocked?'':' locked');
+        div.role='listitem';
+        div.innerHTML=`<div class="ico" aria-hidden="true">${a.icon}</div><div><div class="ach-t">${a.title}</div><div class="ach-d">${a.desc}</div></div>`;
+        grid.appendChild(div);
+      });
+      updateAchProgress();
+    }
+    function updateAchProgress(){ const total=ACH_LIST.length; const done=Object.values(achievements).filter(Boolean).length; const pct=Math.round(done/total*100); $('#progressLabel').textContent=`${pct}%`; $('#progressBar').style.width=`${pct}%`; }
+    function unlock(id,silent=false){ if(achievements[id]) return; achievements[id]=true; save(LS_KEYS.achievements,achievements); renderAchievements(); if(!silent) toast('Achievement unlocked: '+(ACH_LIST.find(x=>x.id===id)?.title||id),'ok',2800); }
+
+    function updateStatsUI(){
+      $('#stat-bestScore').textContent=String(Number(stats.bestScore||0));
+      $('#stat-bestTime').textContent=(Number(stats.bestTime||0)).toFixed(1);
+      $('#stat-totalCoins').textContent=String(Number(stats.totalCoins||0));
+      $('#stat-gamesPlayed').textContent=String(Number(stats.gamesPlayed||0));
+      updateAvatarVisual();
+    }
+
+    function renderLeaderboard(){
+      const tbody=$('#lbBody'); if(!tbody) return; tbody.innerHTML='';
+      const sorted=[...leaderboard].sort((a,b)=>b.score-a.score).slice(0,20);
+      sorted.forEach((row,i)=>{
+        const tr=document.createElement('tr');
+        tr.innerHTML=`<td>${i+1}</td><td><span class="tag" title="Player">${row.name}</span></td><td style="font-weight:900">${row.score}</td><td>${row.time.toFixed(1)}</td><td>${cap(row.diff)}</td><td>${new Date(row.date).toLocaleDateString()}</td>`;
+        tbody.appendChild(tr);
+      });
+    }
+
+    function updateGameInfoTag(){ $('#gameInfoTag').textContent=`${cap(settings.difficulty)} • ${cap(settings.theme)}`; }
+
+    function circleRectIntersect(cx,cy,cr,rx,ry,rw,rh){ const nearestX=clamp(cx,rx,rx+rw); const nearestY=clamp(cy,ry,ry+rh); const dx=cx-nearestX, dy=cy-nearestY; return (dx*dx+dy*dy)<=cr*cr; }
+    function rectRectIntersect(ax,ay,aw,ah,bx,by,bw,bh){ return ax<bx+bw && ax+aw>bx && ay<by+bh && ay+ah>by; }
+    function roundRect(ctx,x,y,w,h,r){ const min=Math.min(w,h)/2; r=Math.min(r,min); ctx.beginPath(); ctx.moveTo(x+r,y); ctx.arcTo(x+w,y,x+w,y+h,r); ctx.arcTo(x+w,y+h,x,y+h,r); ctx.arcTo(x,y+h,x,y,r); ctx.arcTo(x,y,x+w,y,r); ctx.closePath(); }
+
+    function spawnSparks(arr,x,y,color){ for(let i=0;i<18;i++) arr.push({x,y,vx:rand(-120,120),vy:rand(-160,-40),life:rand(0.18,0.5),color}); }
+
+    class Game{
+      constructor(canvas){
+        this.canvas=canvas; this.ctx=canvas.getContext('2d'); this.bounds={left:0,right:0,top:0,bottom:0}; this.last=0; this.running=false; this.paused=false; this.over=false;
+        this.input={left:false,right:false}; this.entities={coins:[],hazards:[],sparks:[]}; this.player={x:0,y:0,w:40,h:18,vx:0,accel:2000,friction:0.9};
+        this.difficulty=settings.difficulty; this.multi=1; this.elapsed=0; this.coinCount=0; this.score=0; this.bestStreak=0; this.currStreak=0; this.spawnTimers={coin:0,hazard:0};
+        this.dim(); this.bindKeys(); this.handleVisibility();
+      }
+      dim(){
+        const rect=this.canvas.getBoundingClientRect();
+        const dpr = Math.max(1, window.devicePixelRatio || 1);
+        this.canvas.width = Math.max(300, Math.floor(rect.width * dpr));
+        this.canvas.height = Math.max(200, Math.floor(rect.height * dpr));
+        this.ctx.setTransform(dpr,0,0,dpr,0,0);
+        this.bounds.left=20; this.bounds.right=rect.width-20; this.bounds.top=20; this.bounds.bottom=rect.height-20;
+        this.player.x = rect.width/2; this.player.y = rect.height-60;
+      }
+      bindKeys(){
+        const on=(e,v)=>{
+          const key=e.key;
+          if(['ArrowLeft','a','A'].includes(key)){ this.input.left=v; e.preventDefault(); }
+          if(['ArrowRight','d','D'].includes(key)){ this.input.right=v; e.preventDefault(); }
+          if(key===' '){ if(v) togglePause(); e.preventDefault(); }
+          if(['p','P'].includes(key)){ if(v) togglePause(); e.preventDefault(); }
+        };
+        window.addEventListener('keydown',e=>on(e,true));
+        window.addEventListener('keyup',e=>on(e,false));
+      }
+      handleVisibility(){
+        document.addEventListener('visibilitychange',()=>{ if(document.hidden) this.pause(); });
+        window.addEventListener('blur',()=>this.pause());
+        window.addEventListener('resize',()=>this.dim());
+      }
+      start(){
+        this.running=true; this.paused=false; this.over=false; this.entities.coins=[]; this.entities.hazards=[]; this.entities.sparks=[];
+        this.elapsed=0; this.score=0; this.multi=1; this.coinCount=0; this.bestStreak=0; this.currStreak=0; this.spawnTimers.coin=0; this.spawnTimers.hazard=0;
+        this.difficulty=settings.difficulty; this.last=performance.now(); this.loop(this.last);
+      }
+      loop(t){
+        if(!this.running) return;
+        const dt=Math.min(0.033,(t-this.last)/1000); this.last=t;
+        if(!this.paused && !this.over){ this.update(dt); this.render(); }
+        requestAnimationFrame(this.loop.bind(this));
+      }
+      update(dt){
+        this.elapsed+=dt;
+        const diffMul = this.difficulty === 'easy' ? 0.85 : this.difficulty === 'hard' ? 1.25 : 1;
+        const speedBase = 260 * diffMul;
+        const hazardBase = 240 * diffMul;
+        const accel = this.input.left ? -1 : this.input.right ? 1 : 0;
+        this.player.vx += accel * this.player.accel * dt;
+        this.player.vx *= this.player.friction;
+        this.player.x += this.player.vx * dt;
+        this.player.x = clamp(this.player.x, this.bounds.left, this.bounds.right);
+        this.spawnTimers.coin -= dt; this.spawnTimers.hazard -= dt;
+        const coinInterval = clamp(0.6 - this.elapsed*0.002, 0.18, 0.6) / diffMul;
+        const hazardInterval = clamp(0.8 - this.elapsed*0.0025, 0.22, 0.8) / diffMul;
+        if(this.spawnTimers.coin <= 0){ this.spawnCoin(); this.spawnTimers.coin = coinInterval; }
+        if(this.spawnTimers.hazard <= 0){ this.spawnHazard(); this.spawnTimers.hazard = hazardInterval; }
+        for(let i=this.entities.coins.length-1;i>=0;i--){
+          const c=this.entities.coins[i]; c.y += (speedBase + c.speedRand) * dt; if(c.y - c.r > this.bounds.bottom + 30) this.entities.coins.splice(i,1);
+        }
+        for(let i=this.entities.hazards.length-1;i>=0;i--){
+          const h=this.entities.hazards[i];
+          h.y += (hazardBase + h.speedRand) * dt;
+          h.x += Math.sin((this.elapsed + h.osc) * h.oscFreq) * h.oscAmp * dt * 60;
+          if(h.y - h.h > this.bounds.bottom + 40) this.entities.hazards.splice(i,1);
+        }
+        for(let i=this.entities.coins.length-1;i>=0;i--){
+          const c=this.entities.coins[i];
+          if(circleRectIntersect(c.x,c.y,c.r,this.player.x-this.player.w/2,this.player.y-this.player.h/2,this.player.w,this.player.h)){
+            this.entities.coins.splice(i,1); this.coinCount++; this.currStreak++; this.bestStreak=Math.max(this.bestStreak,this.currStreak);
+            this.score += Math.round(50 * this.multi * diffMul); this.multi = clamp(this.multi + 0.02, 1, 5);
+            spawnSparks(this.entities.sparks,c.x,c.y,'#7dd3fc'); playCoin();
+            if(stats.totalCoins + this.coinCount >= 10) unlock('coins10', true);
+            if(stats.totalCoins + this.coinCount >= 100) unlock('coins100', true);
+          }
+        }
+        for(let i=this.entities.hazards.length-1;i>=0;i--){
+          const h=this.entities.hazards[i];
+          if(rectRectIntersect(this.player.x - this.player.w/2, this.player.y - this.player.h/2, this.player.w, this.player.h, h.x, h.y, h.w, h.h)){
+            this.entities.hazards.splice(i,1); spawnSparks(this.entities.sparks,this.player.x,this.player.y,'#fb7185'); playHit(); this.gameOver('hit'); return;
+          }
+        }
+        for(let i=this.entities.sparks.length-1;i>=0;i--){
+          const p=this.entities.sparks[i]; p.x += p.vx * dt; p.y += p.vy * dt; p.life -= dt; if(p.life <= 0) this.entities.sparks.splice(i,1);
+        }
+        this.score += Math.round(12 * this.multi * diffMul * dt);
+        $('#uiScore').textContent = String(Math.floor(this.score));
+        $('#uiTime').textContent = this.elapsed.toFixed(1) + 's';
+        $('#uiCoins').textContent = String(this.coinCount);
+        $('#uiMulti').textContent = 'x' + this.multi.toFixed(2);
+        if(Math.floor(this.elapsed) % 20 === 0 && Math.floor(this.elapsed) !== 0 && (this._lastLevelAnnounce|0) !== Math.floor(this.elapsed)){
+          this._lastLevelAnnounce = Math.floor(this.elapsed); playLevel(); toast('Speed up!','ok',1200);
+        }
+        if(this.elapsed >= 30) unlock('survive30', true);
+        if(this.elapsed >= 60) unlock('survive60', true);
+      }
+      spawnCoin(){ const x=rand(this.bounds.left+12,this.bounds.right-12); const r=rand(8,12); this.entities.coins.push({x,y:this.bounds.top-10,r,speedRand:rand(-40,60)}); }
+      spawnHazard(){ const w=rand(28,46), h=rand(18,26); const x=rand(this.bounds.left,this.bounds.right-w); const y=this.bounds.top-h-10; this.entities.hazards.push({x,y,w,h,speedRand:rand(-20,60),osc:rand(0,Math.PI*2),oscAmp:rand(20,60),oscFreq:rand(0.8,1.6)}); }
+      render(){
+        const ctx=this.ctx; const w=this.canvas.clientWidth, h=this.canvas.clientHeight;
+        ctx.clearRect(0,0,w,h);
+        const grad=ctx.createLinearGradient(0,0,0,h); grad.addColorStop(0,'rgba(255,255,255,0.02)'); grad.addColorStop(1,'rgba(0,0,0,0.12)'); ctx.fillStyle=grad; ctx.fillRect(0,0,w,h);
+        for(const c of this.entities.coins){
+          const g=ctx.createRadialGradient(c.x-2,c.y-2,3,c.x,c.y,c.r+3); g.addColorStop(0,'#e0f2fe'); g.addColorStop(1,'#38bdf8'); ctx.fillStyle=g; ctx.beginPath(); ctx.arc(c.x,c.y,c.r,0,Math.PI*2); ctx.fill();
+        }
+        for(const ob of this.entities.hazards){
+          ctx.fillStyle='#ef4444aa'; ctx.strokeStyle='#ef4444'; ctx.lineWidth=2; roundRect(ctx,ob.x,ob.y,ob.w,ob.h,6); ctx.fill(); ctx.stroke();
+        }
+        ctx.save(); ctx.translate(this.player.x,this.player.y); ctx.rotate(this.player.vx*0.0006); ctx.fillStyle='#22d3ee'; ctx.strokeStyle='#60a5fa'; ctx.lineWidth=2; roundRect(ctx,-this.player.w/2,-this.player.h/2,this.player.w,this.player.h,8); ctx.fill(); ctx.stroke(); ctx.restore();
+        for(const p of this.entities.sparks){ ctx.globalAlpha = clamp(p.life/0.4,0,1); ctx.fillStyle = p.color; ctx.fillRect(p.x,p.y,2,2); ctx.globalAlpha = 1; }
+      }
+      pause(){ if(this.running && !this.paused && !this.over){ this.paused=true; showOverlay('#overlayPause'); } }
+      resume(){ if(this.running && this.paused){ this.paused=false; hideOverlay('#overlayPause'); this.last=performance.now(); } }
+      gameOver(reason='hit'){ if(this.over) return; this.over=true; this.running=false; this.paused=false; showOverlay('#overlayGameOver'); $('#goScore').textContent = String(Math.floor(this.score)); $('#goTime').textContent = this.elapsed.toFixed(1); const msg = reason==='hit' ? 'You crashed into a hazard.' : 'You ended the run.'; $('#goSummary').textContent = `${msg} Coins: ${this.coinCount}, Best streak: ${this.bestStreak}`;
+        stats.gamesPlayed = Number(stats.gamesPlayed||0) + 1; stats.totalCoins = Number(stats.totalCoins||0) + this.coinCount; if(this.score > (stats.bestScore||0)) stats.bestScore = this.score; if(this.elapsed > (stats.bestTime||0)) stats.bestTime = this.elapsed; save(LS_KEYS.stats,stats); updateStatsUI();
+        if(stats.gamesPlayed >= 1) unlock('firstRun', true); if(this.difficulty === 'hard' && this.score >= 5000) unlock('hard5000');
+        renderAchievements();
+        leaderboard.push({ name: profile.name || 'Player', score: this.score, time: this.elapsed, diff: this.difficulty, date: Date.now() });
+        renderLeaderboard();
+      }
+    }
+
+    let game=null;
+    function startRun(){ hideOverlay('#overlayGameOver'); hideOverlay('#overlayPause'); goto('game'); if(!game) game = new Game($('#gameCanvas')); game.dim(); game.start(); }
+    function focusCanvas(){ $('#btnPause')?.focus({preventScroll:true}); }
+    function capTheme(){ return cap(settings.theme); }
+    function updateAvatarName(){ $('#avatar')?.setAttribute('aria-label', 'Player avatar of ' + (profile.name || 'Player')); }
+    function syncHUD(){ $('#hud-difficulty').textContent=cap(settings.difficulty); $('#hud-audio').textContent=settings.audio?'On':'Off'; $('#hud-theme').textContent=capTheme(); updateGameInfoTag(); }
+    function focusable(sel){ const el=$(sel); if(el) el.tabIndex=0; }
+    function focusGameBtn(){ $('#startBtn')?.focus({preventScroll:true}); }
+    function focusOverlay(sel){ const el=$(sel+' .panel .btn'); if(el) el.focus({preventScroll:true}); }
+
+    focusable('#ctrlLeft'); focusable('#ctrlRight');
+    updateAvatarName(); syncHUD();
+    const ro = new ResizeObserver(()=>{ game?.dim(); }); ro.observe($('#gameWrap'));
+    window.addEventListener('keydown', (e)=>{ if(e.key==='Escape'){ if($('#overlayPause')?.classList.contains('show')){ hideOverlay('#overlayPause'); game?.resume(); } else if(routes.find(r=>$('#screen-'+r).getAttribute('aria-hidden')==='false')==='game'){ togglePause(); } }});
+    $('#overlayPause')?.addEventListener('click', e=>{ if(e.target.id==='overlayPause') togglePause(); });
+    $('#overlayGameOver')?.addEventListener('click', e=>{ if(e.target.id==='overlayGameOver') hideOverlay('#overlayGameOver'); });
+    window.addEventListener('keydown', e=>{ if(routes.find(r=>$('#screen-'+r).getAttribute('aria-hidden')==='false')==='game'){ if(['ArrowLeft','ArrowRight',' '].includes(e.key)) e.preventDefault(); } }, {passive:false});
+    setTimeout(()=>toast('Tip: Press P to pause at any time.','ok',2200),900);
+    setInterval(syncInput,80);
+    updateAvatarVisual(); syncHUD();
+  </script>
+</body>
+</html>
